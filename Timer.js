@@ -50,12 +50,10 @@ function Timer(name) {
 			});
 	}
 	this.stop = function () {
-		alert("Stop");
 		this.working = false;
 		this.ticks = 0;
 	}
 	this.get = function () {
-		alert("Get");
 		return { time: this.time, ticks: this.ticks, func: this.func };
 	}
 };
