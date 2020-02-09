@@ -91,8 +91,6 @@ function CustomArrow() {
 		Bows.addBullet({ "entity": entity, damage: params.damage });
 		this.entity = entity;
 		return entity;
-		// this.p = Entity.getPosition(this.entity);
-		// this.v = Entity.getVelocity(this.entity);
 	}
 
 	this.tick = function () {
@@ -114,55 +112,13 @@ function CustomArrow() {
 		}
 	}
 }
-var zoomHandler;
-newThread(function () {
-	zoomHandler = new android.os.Handler();
-})
-// function zoomTo(target, speed) {
-// 	var current = 70, mlt = 0, delay = 0;
-// 	if (current > target) {
-// 		mlt = -1;
-// 	} else mlt = 1;
-
-// 	for (var i = current; i != target; i += speed * mlt) {
-// 		if (Math.abs(i - target) <= speed) i = target;
-// 		var zoomRunnable = new java.lang.Runnable({
-// 			run: function () {
-// 				Player.setFov(i);
-// 			}
-// 		})
-// 		if (i != target) zoomHandler.postDelayed(zoomRunnable, delay);
-// 		else zoomHandler.removeCallbacks(zoomRunnable);
-// 		Logger.Log(delay, "Delay")
-// 		Logger.Log(i, "i")
-// 		delay += 15;
-// 	}
-// }
-function reduceFov(target, speed) {
-	if (reduceFov.runned) {
-		delete reduceFov.runned;
-		return;
-	}
-
-	var current = 70;
-	if (target >= current) return;
-	reduceFov.runned = true;
-
-	new java.lang.Thread(function () {
-		while (reduceFov.runned && current > target) {
-			Player.setFov((current -= speed));
-			java.lang.Thread.sleep(16);
-		}
-		if (current <= target) delete reduceFov.runned;
-	}).start();
-}
 Callback.addCallback("tick", function () {
 	for (var i in arrows) Test(function () {
 		arrows[i].tick();
 	}, 'ParticleTick')
 });
 
-function newThread(func) {
+function newThread(func, name) {
 	ctx.runOnUiThread(new java.lang.Runnable({
 		run() {
 			try {
@@ -236,7 +192,6 @@ var Bows = {
 	},
 	getCurrentBow() {
 		var id = Player.getCarriedItem().id, bow = Bows.setCurrentBow(id);
-		//Logger.Log(bow)
 		return bow;
 	},
 	setCurrentBow(id) {
@@ -323,7 +278,6 @@ var Bows = {
 	},
 	shoot() {
 		var bow = Bows.currentBow, c = 0;
-		//for(let p in bow)Logger.Log("[ "+p+": "+bow[p]+" ]", c++);
 		var arr = new CustomArrow();
 		arrows.push(arr);
 		arr.spawn(bow);
@@ -342,13 +296,11 @@ var Bows = {
 		if (bow) {
 			var bulletID = Bows.getBullet(bow.bullets);
 			if (bulletID && bow.shooting == true && Inventory.haveItem(bulletID, 0)) {
-				// if (bow.state == 0) reduceFov(50, 0.5)
 				if (bow.state == bow.variations) {
 					bow.state = 0;
 					bow.shooting = false;
 					if (Inventory.retrieveItem(bulletID)) {
 						Bows.shoot();
-						// Player.resetFov();
 						return;
 					}
 				} else {
