@@ -218,7 +218,7 @@ var Bows = {
 			}
 			if (ent != -1) {
 				Game.prevent();
-				Entity.damageEntity(ent.entity, bow.damage);
+				Entity.damageEntity(ent.entity, Bows.currentBow.damage || 0);
 				Callback.invokeCallback('BowArrowEntityDamage', a, v, d);
 				return true;
 			}
