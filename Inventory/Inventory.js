@@ -13,8 +13,8 @@ var Inventory = {
 	getArmorSlot(slot) {
 		return Player.getArmorSlot(slot);
 	},
-
 	haveItem(id, data) {
+		if(typeof id === 'string') id = ItemID[id]
 		if (!data) data = 0;
 		for (var i = 0; i < 36; i++) {
 			let slot = Player.getInventorySlot(i);
@@ -23,7 +23,6 @@ var Inventory = {
 		}
 		return false;
 	},
-
 	getItemSlot(id, data){
 		if(this.haveItem(id, data))
 		for (var i = 0; i < 36; i++) {
@@ -34,7 +33,6 @@ var Inventory = {
 		}
 		else return;
 	},
-
 	damageItem(damage) {
 		var item = Player.getCarriedItem();
 		item.data += damage;
@@ -42,10 +40,10 @@ var Inventory = {
 			item.id = 0;
 			item.count = 0;
 			item.data = 0;
-		} // }else Game.tipMessage("Durability: "+(Item.getMaxDamage(item.id)-item.data)+"/"+Item.getMaxDamage(item.id));
+		}
+		// }else Game.tipMessage("Durability: "+(Item.getMaxDamage(item.id)-item.data)+"/"+Item.getMaxDamage(item.id));
 		Player.setCarriedItem(item.id, 1, item.data, item.extra);
 	},
-
 	retrieveItem(id, data) {
 		if (!data) data = -1;
 		for (var i = 0; i < 36; i++) {

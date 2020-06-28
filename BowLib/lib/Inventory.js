@@ -14,6 +14,7 @@ var Inventory = {
 		return Player.getArmorSlot(slot);
 	},
 	haveItem(id, data) {
+		if(typeof id === 'string') id = ItemID[id]
 		if (!data) data = 0;
 		for (var i = 0; i < 36; i++) {
 			let slot = Player.getInventorySlot(i);
