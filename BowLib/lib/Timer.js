@@ -56,7 +56,7 @@ Timer.prototype.start = function () {
 			if (typeof this_._onStart === "function") this_._onStart()
 			this_._isRunning = true
 
-			while (this_._isRunning && this_._time > 0) {
+			while (this_._isRunning) {
 				if (typeof this_._onSec === "function") this_._onSec()
 				Threading.getThread("Timer").sleep(this_._time || 50)
 			}

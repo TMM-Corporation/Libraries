@@ -54,10 +54,10 @@ ItemAnimator.prototype.Stop = function (reset) {
 	if (reset) this.resetTexture()
 	if (typeof this._onStop === "function") this._onStop()
 }
-ItemAnimator.prototype.bindAnimator = function (id, data) {
+ItemAnimator.prototype.bindAnimator = function (id) {
 	let this_ = this
 	Item.registerIconOverrideFunction(id, function (item, name) {
-		return {name: this_.currentTexture, data: this_.currentData}
+		return {name: this_.currentTexture, meta: this_.currentData}
 	})
 	if (typeof this._onAnimatorBinded === "function") this._onAnimatorBinded()
 }

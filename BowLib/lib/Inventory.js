@@ -42,7 +42,7 @@ var Inventory = {
 			item.data = 0;
 		}
 		// }else Game.tipMessage("Durability: "+(Item.getMaxDamage(item.id)-item.data)+"/"+Item.getMaxDamage(item.id));
-		Player.setCarriedItem(item.id, 1, item.data, item.extra);
+		Player.setCarriedItem(item.id, item.count, item.data, item.extra);
 	},
 	retrieveItem(id, data) {
 		if (!data) data = -1;

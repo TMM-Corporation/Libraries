@@ -18,6 +18,15 @@ IMPORT('Inventory')
 
 let ctx = UI.getContext()
 
+ctx.runOnUiThread(new java.lang.Runnable({
+	run: function () {
+		ctx.getWindow().setFlags(
+			android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,
+			android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
+		)
+	}
+}))
+
 function newThread(func, name) {
 	ctx.runOnUiThread(new java.lang.Runnable({
 		run() {
@@ -137,7 +146,7 @@ Arrow.prototype.spawn = function () {
 		y: Math.sin(pitch),
 		z: Math.cos(yaw) * Math.cos(pitch)
 	},
-		entity = Entity.spawn(c.x + (v.x * .12), c.y + (v.y * .12), c.z + (v.z * .12), 80, params.skin)
+		entity = Entity.spawn(c.x + (v.x * .5), c.y + (v.y * .5), c.z + (v.z * .5), 80, params.skin)
 	// Entity.setSkin(entity, params.skin)
 	Entity.setVelocity(entity, v.x * params.speed, v.y * params.speed + 0.2, v.z * params.speed)
 	this.entity = entity
@@ -157,22 +166,23 @@ function Bow() {
 Bow.prototype.Create = function (params) {
 	let this_ = this
 	IDRegistry.genItemID(params.namedID)
-	Item.createItem(params.namedID, params.name, {name: params.baseTexture, data: params.baseTextureData || 0}, {stack: 1})
+	Item.createItem(params.namedID, params.name, {name: params.baseTexture, meta: params.baseTextureData || 0}, {stack: 1})
 	Item.setUseAnimation(params.namedID, 4)
 	Item.setToolRender(params.namedID, true)
 	Item.setMaxUseDuration(params.namedID, 72000)
 	if (params.maxDamage)
 		Item.setMaxDamage(params.namedID, params.maxDamage)
-	if (params.ToolAPI) {
-		let material = params.ToolAPI
-		ToolAPI.addToolMaterial(material.name, {
-			durability: material.durability || 256,
-			level: material.level || 0,
-			efficiency: material.efficiency || 0,
-			damage: material.damage || 0,
-			enchantability: material.enchantability || 14
-		})
-	}
+	// if (params.ToolAPI) {
+	// 	let material = params.ToolAPI
+	// 	ToolAPI.addToolMaterial(material.name, {
+	// 		durability: material.durability || 256,
+	// 		level: material.level || 0,
+	// 		efficiency: material.efficiency || 0,
+	// 		damage: material.damage || 0,
+	// 		enchantability: material.enchantability || 14
+	// 	})
+	// 	ToolAPI.registerTool(ItemID[params.namedID], material.name)
+	// }
 	Item.registerNoTargetUseFunction(params.namedID, function (item, ticks) {
 		this_.startUse(params, item, ticks)
 	})
@@ -190,10 +200,12 @@ Bow.prototype.startUse = function (params) {
 		l2: for (let name in params.arrows) {
 			let arrowObj = params.arrows[name]
 			if (ItemID[arrowObj.arrow.params.namedID] == currID) {
+				arrowObj.currSlot = i
 				this.arrowObj = arrowObj
 				this.using = true
 				if (typeof this._onStart === "function") this._onStart()
-				params.animation.Start(arrowObj.startUseAnimation)
+				if (typeof arrowObj.startUseAnimation === 'string')
+					params.animation.Start(arrowObj.startUseAnimation)
 				break l1
 			}
 		}
@@ -202,12 +214,24 @@ Bow.prototype.startUse = function (params) {
 Bow.prototype.endUse = function (params) {
 	let arrowObj = this.arrowObj
 	if (arrowObj && this.using) {
-		arrowObj.arrow.spawn()
-		if (params.maxDamage)
-
-			params.animation.Stop(true)
-		// params.animation.Start(arrowObj.out)
+		let arrow = Player.getInventorySlot(arrowObj.currSlot)
+		if (Inventory.retrieveItem(arrow.id, arrow.data)) {
+			arrowObj.arrow.spawn()
+			if (params.sound) {
+				let shootSound = new Sound()
+				shootSound.setSource(params.sound)
+				shootSound.setOnCompletion(function () {
+					shootSound.destroy()
+				})
+				shootSound.play()
+			}
+			if (params.maxDamage)
+				Inventory.damageItem(1)
+		}
+		params.animation.Stop(true)
 		this.using = false
+		// if (typeof arrowObj.endUseAnimation === 'string')
+		// 	params.animation.Start(arrowObj.endUseAnimation)
 		if (typeof this._onStop === "function") this._onStop()
 		delete this.arrowObj
 	}
